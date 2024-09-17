@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false" # Skip Jenkins setup wizard
+
+  docker:
+    image: docker:20.10-dind
+    container_name: docker
+    privileged: true
+    volumes:
+      - docker-data:/var/lib/docker
+
+  trivy:
+    image: aquasec/trivy:latest
+    container_name: trivy
+    entrypoint: ["trivy", "image", "--no-progress", "--format", "json"]
+    volumes:
+      - trivy-data:/root/.cache
+
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus
+    ports:
+      - "8081:8081"
+    volumes:
+      - nexus-data:/nexus-data
+
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:h2:tcp://sonarqube-db:9092/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-logs:/opt/sonarqube/logs
+      - sonarqube-extensions:/opt/sonarqube/extensions
+
+  sonarqube-db:
+    image: h2
+    container_name: sonarqube-db
+    ports:
+      - "9092:9092"
+    environment:
+      H2_TCP_PORT: 9092
+    volumes:
+      - sonarqube-db-data:/data
+
+volumes:
+  jenkins_home:
+  docker-data:
+  trivy-data:
+  nexus-data:
+  sonarqube-data:
+  sonarqube-logs:
+  sonarqube-extensions:
+  sonarqube-db-data:
