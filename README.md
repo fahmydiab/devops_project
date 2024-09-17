@@ -1,0 +1,3 @@
+- chmod +x get_ip.sh
+- terraform init
+- terraform apply
