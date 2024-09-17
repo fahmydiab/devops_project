@@ -1,5 +1,6 @@
 provider "aws" {
   region = "eu-north-1"
+  profile = "profile_name"
 }
 # Define the key pair resource
 resource "aws_key_pair" "my_key_pair" {
