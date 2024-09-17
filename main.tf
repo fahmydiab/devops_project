@@ -84,7 +84,6 @@ resource "aws_instance" "my_instance" {
   ami = "ami-04cdc91e49cb06165"  # Ubuntu AMI ID for your region
   instance_type = "t2.micro"
   key_name = "your-key-pair-name"  # Replace with your key pair name
-
   tags = {
     Name = "MyUbuntuInstance"
   }
