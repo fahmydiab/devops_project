@@ -1,0 +1,29 @@
+---
+- name: Deploy Nexus as a Docker container
+  hosts: nexus
+  become: yes
+
+  tasks:
+    - name: Copy install_docker.sh script to remote host
+      copy:
+        src: ./install_docker.sh
+        dest: /tmp/install_docker.sh
+        mode: '0755'
+
+    - name: Execute install_docker.sh to install Docker
+      command: /tmp/install_docker.sh
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Run Nexus container
+      community.docker.docker_container:
+        name: nexus
+        image: sonatype/nexus3:latest
+        state: started
+        restart_policy: always
+        published_ports:
+          - "8081:8081"  # Host:Container port mapping

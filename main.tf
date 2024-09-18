@@ -77,12 +77,42 @@ resource "aws_security_group" "my_sg" {
   }
 }
 
-resource "aws_instance" "devops_instance" {
+resource "aws_instance" "jenkins" {
   ami = "ami-04cdc91e49cb06165"  # Ubuntu AMI ID for your region
   instance_type = "t3.micro"
   key_name = "my-key-pair"  # Replace with your key pair name
   tags = {
-    Name = "devops_project"
+    Name = "jenkins"
+  }
+
+  security_groups = [aws_security_group.my_sg.name]
+}
+resource "aws_instance" "sonarqube" {
+  ami = "ami-04cdc91e49cb06165"  # Ubuntu AMI ID for your region
+  instance_type = "t3.micro"
+  key_name = "my-key-pair"  # Replace with your key pair name
+  tags = {
+    Name = "sonarqube"
+  }
+
+  security_groups = [aws_security_group.my_sg.name]
+}
+resource "aws_instance" "nexus" {
+  ami = "ami-04cdc91e49cb06165"  # Ubuntu AMI ID for your region
+  instance_type = "t3.micro"
+  key_name = "my-key-pair"  # Replace with your key pair name
+  tags = {
+    Name = "nexus"
+  }
+
+  security_groups = [aws_security_group.my_sg.name]
+}
+resource "aws_instance" "k8s" {
+  ami = "ami-04cdc91e49cb06165"  # Ubuntu AMI ID for your region
+  instance_type = "t3.micro"
+  key_name = "my-key-pair"  # Replace with your key pair name
+  tags = {
+    Name = "k8s"
   }
 
   security_groups = [aws_security_group.my_sg.name]
