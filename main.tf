@@ -8,10 +8,6 @@ resource "aws_key_pair" "my_key_pair" {
   public_key = file("~/.ssh/id_rsa.pub")  # Path to your public key file
 }
 
-data "external" "my_ip" {
-  program = ["bash", "${path.module}/get_ip.sh"]  # Use ["powershell", "${path.module}/get_ip.ps1"] for Windows
-}
-
 resource "aws_security_group" "my_sg" {
   name_prefix = "my-security-group-"
   description = "Allow SSH and other ports"
@@ -20,7 +16,7 @@ resource "aws_security_group" "my_sg" {
     from_port = 22
     to_port   = 22
     protocol  = "tcp"
-    cidr_blocks = [data.external.my_ip.result["ip"]+"/32"]  # Replace with your IP address or range
+    cidr_blocks = ["154.239.215.224/32"]  # Replace with your IP address or range
   }
 
   ingress {
@@ -81,12 +77,12 @@ resource "aws_security_group" "my_sg" {
   }
 }
 
-resource "aws_instance" "my_instance" {
+resource "aws_instance" "devops_instance" {
   ami = "ami-04cdc91e49cb06165"  # Ubuntu AMI ID for your region
-  instance_type = "t2.micro"
-  key_name = "your-key-pair-name"  # Replace with your key pair name
+  instance_type = "t3.micro"
+  key_name = "my-key-pair"  # Replace with your key pair name
   tags = {
-    Name = "MyUbuntuInstance"
+    Name = "devops_project"
   }
 
   security_groups = [aws_security_group.my_sg.name]

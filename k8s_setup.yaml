@@ -1,0 +1,108 @@
+---
+- name: Setup Kubernetes Cluster with kubeadm
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update system packages
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Set permissions on Docker socket
+      command: chmod 666 /var/run/docker.sock
+
+    - name: Install required dependencies for Kubernetes
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+
+    - name: Create keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download Kubernetes GPG key
+      command: >
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+      register: gpg_key
+
+    - name: Add Kubernetes GPG key
+      command: gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      args:
+        stdin: "{{ gpg_key.stdout }}"
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      when: gpg_key.rc == 0
+
+    - name: Add Kubernetes repository
+      copy:
+        dest: /etc/apt/sources.list.d/kubernetes.list
+        content: |
+          deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
+
+    - name: Update package list for Kubernetes
+      apt:
+        update_cache: yes
+
+    - name: Install Kubernetes components
+      apt:
+        name:
+          - kubeadm=1.28.1-1.1
+          - kubelet=1.28.1-1.1
+          - kubectl=1.28.1-1.1
+        state: present
+
+    - name: Initialize Kubernetes Master Node
+      command: kubeadm init --pod-network-cidr=10.244.0.0/16
+      when: inventory_hostname == "master"  # Change 'master' to your master node's name
+
+    - name: Configure kubectl for the master node
+      block:
+        - name: Create .kube directory
+          file:
+            path: ~/.kube
+            state: directory
+            mode: '0755'
+
+        - name: Copy admin.conf
+          command: >
+            cp -i /etc/kubernetes/admin.conf ~/.kube/config
+          args:
+            chdir: /home/{{ ansible_user }}
+
+        - name: Set ownership of kube config
+          command: chown $(id -u):$(id -g) ~/.kube/config
+          args:
+            chdir: /home/{{ ansible_user }}
+      when: inventory_hostname == "master"
+
+    - name: Deploy Calico network solution
+      command: kubectl apply -f https://docs.projectcalico.org/v3.20/manifests/calico.yaml
+      when: inventory_hostname == "master"
+
+    - name: Deploy NGINX Ingress Controller
+      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/baremetal/deploy.yaml
+      when: inventory_hostname == "master"
+
+    - name: Download kubeaudit
+      get_url:
+        url: https://github.com/Shopify/kubeaudit/releases/download/v0.22.2/kubeaudit_0.22.2_linux_amd64.tar.gz  # Update with the latest URL
+        dest: /tmp/kubeaudit
+        mode: '0755'
+
+    - name: Move kubeaudit to /usr/local/bin
+      command: mv /tmp/kubeaudit /usr/local/bin/kubeaudit
+      args:
+        removes: /usr/local/bin/kubeaudit
+
+    - name: Run kubeaudit
+      command: kubeaudit all
+      when: inventory_hostname == "master"

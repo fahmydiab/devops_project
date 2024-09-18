@@ -1,3 +1,4 @@
-- chmod +x get_ip.sh
+- aws configure
 - terraform init
 - terraform apply
+- ansible-playbook -i hosts.ini k8s_setup.yaml
