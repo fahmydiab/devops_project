@@ -22,7 +22,7 @@
     - name: Run Sonarqube container
       community.docker.docker_container:
         name: sonarqube
-        image:  sonarqube:lts-community
+        image:  sonarqube:8.9.1-community
         state: started
         restart_policy: always
         published_ports:
