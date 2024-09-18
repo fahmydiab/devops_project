@@ -1,9 +1,12 @@
 #### - aws configure
 #### - terraform init
 #### - terraform apply
-#### - ansible-playbook -i hosts.ini k8s_setup.yaml
+#### - ansible-playbook -i inventory.yml k8s_setup.yaml -l k8s
 
-####  - ansible-playbook -i hosts.ini  jenkins_setup.yaml
-####  - ansible-playbook -i hosts.ini  nexus_setup.yaml
-####  - ansible-playbook -i hosts.ini  sonarqube_setup.yaml
+####  - ansible-playbook -i inventory.yml jenkins_setup.yaml -l jenkins
+
+####  -  ansible-playbook -i inventory.yml nexus_setup.yaml -l nexus
+
+####  -  ansible-playbook -i inventory.yml sonarqube_setup.yaml -l sonarqube
+
 
