@@ -2,3 +2,4 @@
 - terraform init
 - terraform apply
 - ansible-playbook -i hosts.ini k8s_setup.yaml
+- ansible-playbook -i hosts.ini docker_deploy.yaml

@@ -12,20 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false" # Skip Jenkins setup wizard
-
-  docker:
-    image: docker:20.10-dind
-    container_name: docker
-    privileged: true
-    volumes:
-      - docker-data:/var/lib/docker
-
-  trivy:
-    image: aquasec/trivy:latest
-    container_name: trivy
-    entrypoint: ["trivy", "image", "--no-progress", "--format", "json"]
-    volumes:
-      - trivy-data:/root/.cache
+    entrypoint: /bin/sh -c "apt-get update && apt-get install -y docker.io && curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh && /usr/local/bin/jenkins.sh"
 
   nexus:
     image: sonatype/nexus3:latest
@@ -49,22 +36,9 @@ services:
       - sonarqube-logs:/opt/sonarqube/logs
       - sonarqube-extensions:/opt/sonarqube/extensions
 
-  sonarqube-db:
-    image: h2
-    container_name: sonarqube-db
-    ports:
-      - "9092:9092"
-    environment:
-      H2_TCP_PORT: 9092
-    volumes:
-      - sonarqube-db-data:/data
-
 volumes:
   jenkins_home:
-  docker-data:
-  trivy-data:
   nexus-data:
   sonarqube-data:
   sonarqube-logs:
   sonarqube-extensions:
-  sonarqube-db-data:
