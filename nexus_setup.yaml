@@ -22,7 +22,7 @@
     - name: Run Nexus container
       community.docker.docker_container:
         name: nexus
-        image: sonatype/nexus3:latest
+        image: sonatype/nexus3:3.38.1-alpine
         state: started
         restart_policy: always
         published_ports:
