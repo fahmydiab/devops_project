@@ -16,7 +16,7 @@ resource "aws_security_group" "my_sg" {
     from_port = 22
     to_port   = 22
     protocol  = "tcp"
-    cidr_blocks = ["154.239.215.224/32"]  # Replace with your IP address or range
+    cidr_blocks = ["<PUBLIC_IP_PLACEHOLDER>/32"]  # Replace with your IP address or range
   }
 
   ingress {

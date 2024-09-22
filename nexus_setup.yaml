@@ -22,8 +22,15 @@
     - name: Run Nexus container
       community.docker.docker_container:
         name: nexus
-        image: sonatype/nexus3:3.38.1-alpine
+        image: sonatype/nexus3:latest
         state: started
         restart_policy: always
         published_ports:
-          - "8081:8081"  # Host:Container port mapping
+          - "8081:8081"
+        volumes:
+          - nexus-data:/nexus-data
+
+    - name: Create docker volume for Nexus data
+      docker_volume:
+        name: nexus-data
+        state: present
