@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/f4695042-3b58-4127-805b-6ea6f6bcac8f)
+
 #### - aws configure
 #### - terraform init
 #### - terraform apply
